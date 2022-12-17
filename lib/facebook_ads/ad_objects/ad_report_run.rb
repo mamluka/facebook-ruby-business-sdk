@@ -35,6 +35,7 @@ module FacebookAds
     field :emails, { list: 'string' }
     field :friendly_name, 'string'
     field :id, 'string'
+    field :report_run_id, 'string'
     field :is_bookmarked, 'bool'
     field :is_running, 'bool'
     field :schedule_id, 'string'
