@@ -1,20 +1,8 @@
-# Copyright (c) 2017-present, Facebook, Inc. All rights reserved.
-#
-# You are hereby granted a non-exclusive, worldwide, royalty-free license to use,
-# copy, modify, and distribute this software in source code or binary form for use
-# in connection with the web services and APIs provided by Facebook.
-#
-# As with any software that integrates with the Facebook platform, your use of
-# this software is subject to the Facebook Platform Policy
-# [http://developers.facebook.com/policy/]. This copyright notice shall be
-# included in all copies or substantial portions of the software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+# All rights reserved.
+
+# This source code is licensed under the license found in the
+# LICENSE file in the root directory of this source tree.
 
 # FB:AUTOGEN
 
@@ -84,6 +72,14 @@ module FacebookAds
       "ZAR",
     ]
 
+    PERMITTED_TASKS = [
+      "AA_ANALYZE",
+      "ADVERTISE",
+      "ANALYZE",
+      "DRAFT",
+      "MANAGE",
+    ]
+
     TASKS = [
       "AA_ANALYZE",
       "ADVERTISE",
@@ -122,6 +118,7 @@ module FacebookAds
     SUBTYPE = [
       "APP",
       "BAG_OF_ACCOUNTS",
+      "BIDDING",
       "CLAIM",
       "CUSTOM",
       "ENGAGEMENT",
@@ -131,9 +128,16 @@ module FacebookAds
       "MEASUREMENT",
       "OFFLINE_CONVERSION",
       "PARTNER",
+      "PRIMARY",
       "REGULATED_CATEGORIES_AUDIENCE",
       "STUDY_RULE_AUDIENCE",
+      "SUBSCRIBER_SEGMENT",
       "VIDEO",
+      "WEBSITE",
+    ]
+
+    ACTION_SOURCE = [
+      "PHYSICAL_STORE",
       "WEBSITE",
     ]
 
@@ -143,6 +147,7 @@ module FacebookAds
     field :ad_account_promotable_objects, 'AdAccountPromotableObjects'
     field :age, 'double'
     field :agency_client_declaration, 'AgencyClientDeclaration'
+    field :all_capabilities, { list: 'string' }
     field :amount_spent, 'string'
     field :attribution_spec, { list: 'AttributionSpec' }
     field :balance, 'string'
@@ -158,7 +163,9 @@ module FacebookAds
     field :capabilities, { list: 'string' }
     field :created_time, 'datetime'
     field :currency, 'string'
-    field :custom_audience_info, 'AdAccountCustomAudience'
+    field :custom_audience_info, 'CustomAudienceGroup'
+    field :default_dsa_beneficiary, 'string'
+    field :default_dsa_payor, 'string'
     field :disable_reason, 'int'
     field :end_advertiser, 'string'
     field :end_advertiser_name, 'string'
@@ -168,7 +175,6 @@ module FacebookAds
     field :fb_entity, 'int'
     field :funding_source, 'string'
     field :funding_source_details, 'FundingSourceDetails'
-    field :has_advertiser_opted_in_odax, 'bool'
     field :has_migrated_permissions, 'bool'
     field :has_page_authorized_adaccount, 'bool'
     field :id, 'string'
@@ -202,10 +208,19 @@ module FacebookAds
     field :timezone_name, 'string'
     field :timezone_offset_hours_utc, 'double'
     field :tos_accepted, 'hash'
+    field :user_access_expire_time, 'datetime'
     field :user_tasks, { list: 'string' }
     field :user_tos_accepted, 'hash'
     field :viewable_business, 'Business'
     has_no_delete
+
+    has_edge :account_controls do |edge|
+      edge.get 'AdAccountBusinessConstraints'
+      edge.post 'AdAccountBusinessConstraints' do |api|
+        api.has_param :audience_controls, 'object'
+        api.has_param :placement_controls, 'object'
+      end
+    end
 
     has_edge :activities do |edge|
       edge.get 'AdActivity' do |api|
@@ -265,19 +280,23 @@ module FacebookAds
         api.has_param :asset_feed_spec, 'object'
         api.has_param :authorization_category, { enum: -> { AdCreative::AUTHORIZATION_CATEGORY }}
         api.has_param :body, 'string'
+        api.has_param :branded_content, 'hash'
         api.has_param :branded_content_sponsor_page_id, 'string'
         api.has_param :bundle_folder_id, 'string'
         api.has_param :call_to_action, 'object'
         api.has_param :categorization_criteria, { enum: -> { AdCreative::CATEGORIZATION_CRITERIA }}
         api.has_param :category_media_source, { enum: -> { AdCreative::CATEGORY_MEDIA_SOURCE }}
+        api.has_param :degrees_of_freedom_spec, 'hash'
         api.has_param :destination_set_id, 'string'
         api.has_param :dynamic_ad_voice, { enum: -> { AdCreative::DYNAMIC_AD_VOICE }}
         api.has_param :enable_launch_instant_app, 'bool'
+        api.has_param :facebook_branded_content, 'hash'
         api.has_param :image_crops, 'hash'
         api.has_param :image_file, 'string'
         api.has_param :image_hash, 'string'
         api.has_param :image_url, 'string'
         api.has_param :instagram_actor_id, 'string'
+        api.has_param :instagram_branded_content, 'hash'
         api.has_param :instagram_permalink_url, 'string'
         api.has_param :instagram_user_id, 'string'
         api.has_param :interactive_components_spec, 'hash'
@@ -300,7 +319,7 @@ module FacebookAds
         api.has_param :recommender_settings, 'hash'
         api.has_param :source_instagram_media_id, 'string'
         api.has_param :template_url, 'string'
-        api.has_param :template_url_spec, 'object'
+        api.has_param :template_url_spec, 'string'
         api.has_param :thumbnail_url, 'string'
         api.has_param :title, 'string'
         api.has_param :url_tags, 'string'
@@ -329,7 +348,7 @@ module FacebookAds
         api.has_param :selected_hashes, { list: 'string' }
       end
       edge.post list: 'AdImage' do |api|
-        api.has_param :bytes, 'object'
+        api.has_param :bytes, 'string'
         api.has_param :copy_from, 'object'
         api.accepts_files!
       end
@@ -380,10 +399,12 @@ module FacebookAds
       edge.get 'Ad' do |api|
         api.has_param :date_preset, { enum: -> { Ad::DATE_PRESET }}
         api.has_param :effective_status, { list: 'string' }
-        api.has_param :time_range, 'object'
+        api.has_param :time_range, 'hash'
         api.has_param :updated_since, 'int'
       end
       edge.post 'Ad' do |api|
+        api.has_param :ad_schedule_end_time, 'datetime'
+        api.has_param :ad_schedule_start_time, 'datetime'
         api.has_param :adlabels, { list: 'object' }
         api.has_param :adset_id, 'int'
         api.has_param :adset_spec, 'AdSet'
@@ -412,6 +433,10 @@ module FacebookAds
       end
     end
 
+    has_edge :ads_reporting_mmm_schedulers do |edge|
+      edge.get
+    end
+
     has_edge :ads_volume do |edge|
       edge.get 'AdAccountAdVolume' do |api|
         api.has_param :page_id, 'int'
@@ -432,7 +457,8 @@ module FacebookAds
         api.has_param :date_preset, { enum: -> { AdSet::DATE_PRESET }}
         api.has_param :effective_status, { list: { enum: -> { AdSet::EFFECTIVE_STATUS }} }
         api.has_param :is_completed, 'bool'
-        api.has_param :time_range, 'object'
+        api.has_param :time_range, 'hash'
+        api.has_param :updated_since, 'int'
       end
       edge.post 'AdSet' do |api|
         api.has_param :adlabels, { list: 'object' }
@@ -443,6 +469,7 @@ module FacebookAds
         api.has_param :bid_constraints, 'hash'
         api.has_param :bid_strategy, { enum: -> { AdSet::BID_STRATEGY }}
         api.has_param :billing_event, { enum: -> { AdSet::BILLING_EVENT }}
+        api.has_param :campaign_attribution, 'object'
         api.has_param :campaign_id, 'string'
         api.has_param :campaign_spec, 'object'
         api.has_param :creative_sequence, { list: 'string' }
@@ -452,6 +479,8 @@ module FacebookAds
         api.has_param :daily_spend_cap, 'int'
         api.has_param :date_format, 'string'
         api.has_param :destination_type, { enum: -> { AdSet::DESTINATION_TYPE }}
+        api.has_param :dsa_beneficiary, 'string'
+        api.has_param :dsa_payor, 'string'
         api.has_param :end_time, 'datetime'
         api.has_param :execution_options, { list: { enum: -> { AdSet::EXECUTION_OPTIONS }} }
         api.has_param :existing_customer_budget_percentage, 'int'
@@ -481,7 +510,6 @@ module FacebookAds
         api.has_param :time_stop, 'datetime'
         api.has_param :topline_id, 'string'
         api.has_param :tune_for_category, { enum: -> { AdSet::TUNE_FOR_CATEGORY }}
-        api.has_param :upstream_events, 'hash'
       end
     end
 
@@ -609,6 +637,10 @@ module FacebookAds
         api.has_param :business, 'string'
       end
       edge.get 'Business'
+      edge.post 'AdAccount' do |api|
+        api.has_param :business, 'string'
+        api.has_param :permitted_tasks, { list: { enum: -> { AdAccount::PERMITTED_TASKS }} }
+      end
     end
 
     has_edge :applications do |edge|
@@ -666,6 +698,12 @@ module FacebookAds
       end
     end
 
+    has_edge :businessprojects do |edge|
+      edge.get do |api|
+        api.has_param :business, 'string'
+      end
+    end
+
     has_edge :campaigns do |edge|
       edge.delete do |api|
         api.has_param :before_date, 'datetime'
@@ -677,7 +715,7 @@ module FacebookAds
         api.has_param :date_preset, { enum: -> { Campaign::DATE_PRESET }}
         api.has_param :effective_status, { list: { enum: -> { Campaign::EFFECTIVE_STATUS }} }
         api.has_param :is_completed, 'bool'
-        api.has_param :time_range, 'object'
+        api.has_param :time_range, 'hash'
       end
       edge.post 'Campaign' do |api|
         api.has_param :adlabels, { list: 'object' }
@@ -701,7 +739,6 @@ module FacebookAds
         api.has_param :status, { enum: -> { Campaign::STATUS }}
         api.has_param :stop_time, 'datetime'
         api.has_param :topline_id, 'string'
-        api.has_param :upstream_events, 'hash'
       end
     end
 
@@ -716,9 +753,14 @@ module FacebookAds
       edge.get 'IgUser'
     end
 
+    has_edge :conversion_goals do |edge|
+      edge.get
+    end
+
     has_edge :customaudiences do |edge|
       edge.get 'CustomAudience' do |api|
         api.has_param :business_id, 'string'
+        api.has_param :fetch_primary_audience, 'bool'
         api.has_param :fields, { list: 'string' }
         api.has_param :filtering, { list: 'object' }
         api.has_param :pixel_id, 'string'
@@ -756,7 +798,9 @@ module FacebookAds
         api.has_param :rule, 'string'
         api.has_param :rule_aggregation, 'string'
         api.has_param :subtype, { enum: -> { CustomAudience::SUBTYPE }}
+        api.has_param :use_in_campaigns, 'bool'
         api.has_param :video_group_ids, { list: 'string' }
+        api.has_param :whats_app_business_phone_number_id, 'string'
       end
     end
 
@@ -795,10 +839,15 @@ module FacebookAds
       end
     end
 
+    has_edge :dsa_recommendations do |edge|
+      edge.get 'AdAccountDsaRecommendations'
+    end
+
     has_edge :generatepreviews do |edge|
       edge.get 'AdPreview' do |api|
         api.has_param :ad_format, { enum: -> { AdPreview::AD_FORMAT }}
         api.has_param :creative, 'AdCreative'
+        api.has_param :creative_feature, { enum: -> { AdPreview::CREATIVE_FEATURE }}
         api.has_param :dynamic_asset_label, 'string'
         api.has_param :dynamic_creative_spec, 'object'
         api.has_param :dynamic_customization, 'object'
@@ -837,8 +886,8 @@ module FacebookAds
         api.has_param :summary, { list: 'string' }
         api.has_param :summary_action_breakdowns, { list: { enum: -> { AdsInsights::SUMMARY_ACTION_BREAKDOWNS }} }
         api.has_param :time_increment, 'string'
-        api.has_param :time_range, 'object'
-        api.has_param :time_ranges, { list: 'object' }
+        api.has_param :time_range, 'hash'
+        api.has_param :time_ranges, { list: 'hash' }
         api.has_param :use_account_attribution_setting, 'bool'
         api.has_param :use_unified_attribution_setting, 'bool'
       end
@@ -860,8 +909,8 @@ module FacebookAds
         api.has_param :summary, { list: 'string' }
         api.has_param :summary_action_breakdowns, { list: { enum: -> { AdsInsights::SUMMARY_ACTION_BREAKDOWNS }} }
         api.has_param :time_increment, 'string'
-        api.has_param :time_range, 'object'
-        api.has_param :time_ranges, { list: 'object' }
+        api.has_param :time_range, 'hash'
+        api.has_param :time_ranges, { list: 'hash' }
         api.has_param :use_account_attribution_setting, 'bool'
         api.has_param :use_unified_attribution_setting, 'bool'
       end
@@ -883,6 +932,9 @@ module FacebookAds
         api.has_param :campaign_group_status, { enum: %w{ACTIVE ADSET_PAUSED ARCHIVED CAMPAIGN_PAUSED DELETED DISAPPROVED IN_PROCESS PAUSED PENDING_BILLING_INFO PENDING_REVIEW PREAPPROVED WITH_ISSUES }}
         api.has_param :conversion_domain, 'string'
         api.has_param :custom_event_type, { enum: %w{ADD_TO_CART CONTENT_VIEW PURCHASE }}
+        api.has_param :daily_budget, 'int'
+        api.has_param :dsa_beneficiary, 'string'
+        api.has_param :dsa_payor, 'string'
         api.has_param :end_time, 'int'
         api.has_param :lifetime_budget, 'int'
         api.has_param :override_creative_text, 'string'
@@ -995,6 +1047,7 @@ module FacebookAds
         api.has_param :impression, 'int'
         api.has_param :instream_packages, { list: { enum: -> { ReachFrequencyPrediction::INSTREAM_PACKAGES }} }
         api.has_param :interval_frequency_cap_reset_period, 'int'
+        api.has_param :is_balanced_frequency, 'bool'
         api.has_param :is_bonus_media, 'bool'
         api.has_param :is_conversion_goal, 'bool'
         api.has_param :is_full_view, 'bool'
@@ -1013,6 +1066,8 @@ module FacebookAds
         api.has_param :stop_time, 'int'
         api.has_param :story_event_type, 'int'
         api.has_param :target_cpm, 'int'
+        api.has_param :target_frequency, 'int'
+        api.has_param :target_frequency_reset_period, 'int'
         api.has_param :target_spec, 'Targeting'
         api.has_param :video_view_length_constraint, 'int'
       end
@@ -1043,6 +1098,7 @@ module FacebookAds
         api.has_param :is_exclusion, 'bool'
         api.has_param :limit_type, { enum: -> { AdAccountTargetingUnified::LIMIT_TYPE }}
         api.has_param :regulated_categories, { list: { enum: -> { AdAccountTargetingUnified::REGULATED_CATEGORIES }} }
+        api.has_param :regulated_countries, { list: { enum: -> { AdAccountTargetingUnified::REGULATED_COUNTRIES }} }
         api.has_param :whitelisted_types, { list: { enum: -> { AdAccountTargetingUnified::WHITELISTED_TYPES }} }
       end
     end
@@ -1058,6 +1114,7 @@ module FacebookAds
         api.has_param :promoted_object, 'object'
         api.has_param :q, 'string'
         api.has_param :regulated_categories, { list: { enum: -> { AdAccountTargetingUnified::REGULATED_CATEGORIES }} }
+        api.has_param :regulated_countries, { list: { enum: -> { AdAccountTargetingUnified::REGULATED_COUNTRIES }} }
         api.has_param :session_id, 'int'
         api.has_param :targeting_list, { list: 'object' }
         api.has_param :whitelisted_types, { list: { enum: -> { AdAccountTargetingUnified::WHITELISTED_TYPES }} }
@@ -1082,6 +1139,7 @@ module FacebookAds
         api.has_param :objective, { enum: -> { AdAccountTargetingUnified::OBJECTIVE }}
         api.has_param :objects, 'object'
         api.has_param :regulated_categories, { list: { enum: -> { AdAccountTargetingUnified::REGULATED_CATEGORIES }} }
+        api.has_param :regulated_countries, { list: { enum: -> { AdAccountTargetingUnified::REGULATED_COUNTRIES }} }
         api.has_param :session_id, 'int'
         api.has_param :targeting_list, { list: 'object' }
         api.has_param :whitelisted_types, { list: { enum: -> { AdAccountTargetingUnified::WHITELISTED_TYPES }} }
@@ -1114,6 +1172,10 @@ module FacebookAds
         api.has_param :payload, 'object'
         api.has_param :session, 'object'
       end
+    end
+
+    has_edge :value_adjustment_rules do |edge|
+      edge.get
     end
 
   end

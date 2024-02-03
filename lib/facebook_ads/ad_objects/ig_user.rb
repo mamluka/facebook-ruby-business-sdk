@@ -1,20 +1,8 @@
-# Copyright (c) 2017-present, Facebook, Inc. All rights reserved.
-#
-# You are hereby granted a non-exclusive, worldwide, royalty-free license to use,
-# copy, modify, and distribute this software in source code or binary form for use
-# in connection with the web services and APIs provided by Facebook.
-#
-# As with any software that integrates with the Facebook platform, your use of
-# this software is subject to the Facebook Platform Policy
-# [http://developers.facebook.com/policy/]. This copyright notice shall be
-# included in all copies or substantial portions of the software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+# All rights reserved.
+
+# This source code is licensed under the license found in the
+# LICENSE file in the root directory of this source tree.
 
 # FB:AUTOGEN
 
@@ -47,27 +35,34 @@ module FacebookAds
     has_no_delete
 
     has_edge :available_catalogs do |edge|
-      edge.get
+      edge.get 'UserAvailableCatalogs'
     end
 
     has_edge :catalog_product_search do |edge|
-      edge.get do |api|
+      edge.get 'ShadowIgUserCatalogProductSearch' do |api|
         api.has_param :catalog_id, 'string'
         api.has_param :q, 'string'
       end
     end
 
     has_edge :content_publishing_limit do |edge|
-      edge.get do |api|
+      edge.get 'ContentPublishingLimitResponse' do |api|
         api.has_param :since, 'datetime'
       end
     end
 
+    has_edge :dataset do |edge|
+      edge.get 'Dataset'
+    end
+
     has_edge :insights do |edge|
       edge.get 'InstagramInsightsResult' do |api|
+        api.has_param :breakdown, { list: { enum: -> { InstagramInsightsResult::BREAKDOWN }} }
         api.has_param :metric, { list: { enum: -> { InstagramInsightsResult::METRIC }} }
+        api.has_param :metric_type, { enum: -> { InstagramInsightsResult::METRIC_TYPE }}
         api.has_param :period, { list: { enum: -> { InstagramInsightsResult::PERIOD }} }
         api.has_param :since, 'datetime'
+        api.has_param :timeframe, { enum: -> { InstagramInsightsResult::TIMEFRAME }}
         api.has_param :until, 'datetime'
       end
     end
@@ -85,8 +80,11 @@ module FacebookAds
         api.has_param :until, 'datetime'
       end
       edge.post 'IgMedia' do |api|
+        api.has_param :audio_name, 'string'
         api.has_param :caption, 'string'
         api.has_param :children, { list: 'string' }
+        api.has_param :collaborators, { list: 'string' }
+        api.has_param :cover_url, 'string'
         api.has_param :image_url, 'string'
         api.has_param :is_carousel_item, 'bool'
         api.has_param :location_id, 'string'
@@ -113,18 +111,22 @@ module FacebookAds
       end
     end
 
+    has_edge :notification_message_tokens do |edge|
+      edge.get 'UserPageOneTimeOptInTokenSettings'
+    end
+
     has_edge :product_appeal do |edge|
-      edge.get do |api|
+      edge.get 'IgShoppingProductAppeal' do |api|
         api.has_param :product_id, 'string'
       end
-      edge.post do |api|
+      edge.post 'IgShoppingProductAppeal' do |api|
         api.has_param :appeal_reason, 'string'
         api.has_param :product_id, 'string'
       end
     end
 
     has_edge :recently_searched_hashtags do |edge|
-      edge.get
+      edge.get 'ShadowIgHashtag'
     end
 
     has_edge :stories do |edge|

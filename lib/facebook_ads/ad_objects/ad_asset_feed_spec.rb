@@ -1,20 +1,8 @@
-# Copyright (c) 2017-present, Facebook, Inc. All rights reserved.
-#
-# You are hereby granted a non-exclusive, worldwide, royalty-free license to use,
-# copy, modify, and distribute this software in source code or binary form for use
-# in connection with the web services and APIs provided by Facebook.
-#
-# As with any software that integrates with the Facebook platform, your use of
-# this software is subject to the Facebook Platform Policy
-# [http://developers.facebook.com/policy/]. This copyright notice shall be
-# included in all copies or substantial portions of the software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+# All rights reserved.
+
+# This source code is licensed under the license found in the
+# LICENSE file in the root directory of this source tree.
 
 # FB:AUTOGEN
 
@@ -29,6 +17,8 @@ module FacebookAds
     CALL_TO_ACTION_TYPES = [
       "ADD_TO_CART",
       "APPLY_NOW",
+      "AUDIO_CALL",
+      "BOOK_NOW",
       "BOOK_TRAVEL",
       "BUY",
       "BUY_NOW",
@@ -36,6 +26,7 @@ module FacebookAds
       "CALL",
       "CALL_ME",
       "CALL_NOW",
+      "CONFIRM",
       "CONTACT",
       "CONTACT_US",
       "DONATE",
@@ -50,9 +41,11 @@ module FacebookAds
       "GET_DIRECTIONS",
       "GET_OFFER",
       "GET_OFFER_VIEW",
+      "GET_PROMOTIONS",
       "GET_QUOTE",
       "GET_SHOWTIMES",
       "GET_STARTED",
+      "INQUIRE_NOW",
       "INSTALL_APP",
       "INSTALL_MOBILE_APP",
       "LEARN_MORE",
@@ -61,7 +54,6 @@ module FacebookAds
       "LISTEN_NOW",
       "MESSAGE_PAGE",
       "MOBILE_DOWNLOAD",
-      "MOMENTS",
       "NO_BUTTON",
       "OPEN_INSTANT_APP",
       "OPEN_LINK",
@@ -79,6 +71,7 @@ module FacebookAds
       "SELL_NOW",
       "SEND_A_GIFT",
       "SEND_GIFT_MONEY",
+      "SEND_UPDATES",
       "SHARE",
       "SHOP_NOW",
       "SIGN_UP",
@@ -101,21 +94,25 @@ module FacebookAds
 
 
     field :ad_formats, { list: 'string' }
-    field :additional_data, 'object'
-    field :asset_customization_rules, { list: 'object' }
+    field :additional_data, 'AdAssetFeedAdditionalData'
+    field :app_product_page_id, 'string'
+    field :asset_customization_rules, { list: 'AdAssetFeedSpecAssetCustomizationRule' }
     field :autotranslate, { list: 'string' }
     field :bodies, { list: 'AdAssetFeedSpecBody' }
     field :call_to_action_types, { list: { enum: -> { CALL_TO_ACTION_TYPES }} }
-    field :call_to_actions, { list: 'object' }
+    field :call_to_actions, { list: 'AdAssetFeedSpecCallToAction' }
     field :captions, { list: 'AdAssetFeedSpecCaption' }
-    field :carousels, { list: 'object' }
+    field :carousels, { list: 'AdAssetFeedSpecCarousel' }
     field :descriptions, { list: 'AdAssetFeedSpecDescription' }
-    field :events, { list: 'object' }
+    field :events, { list: 'AdAssetFeedSpecEvents' }
     field :groups, { list: 'AdAssetFeedSpecGroupRule' }
     field :images, { list: 'AdAssetFeedSpecImage' }
     field :link_urls, { list: 'AdAssetFeedSpecLinkUrl' }
+    field :message_extensions, { list: 'AdAssetMessageExtensions' }
+    field :onsite_destinations, { list: 'AdAssetOnsiteDestinations' }
     field :optimization_type, 'string'
-    field :posts, { list: 'object' }
+    field :reasons_to_shop, 'bool'
+    field :shops_bundle, 'bool'
     field :titles, { list: 'AdAssetFeedSpecTitle' }
     field :videos, { list: 'AdAssetFeedSpecVideo' }
     has_no_id

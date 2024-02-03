@@ -1,4 +1,5 @@
-# Copyright (c) 2017-present, Facebook, Inc. All rights reserved.
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+# All rights reserved.
 #
 # You are hereby granted a non-exclusive, worldwide, royalty-free license to use,
 # copy, modify, and distribute this software in source code or binary form for use
@@ -33,8 +34,8 @@ adsets = ad_account.adsets.create({
     name: 'A CPA Ad Set',
     campaign_id: '<adCampaignLinkClicksID>',
     daily_budget: '5000',
-    start_time: '2022-09-26T21:38:39-0700',
-    end_time: '2022-10-03T21:38:39-0700',
+    start_time: '2023-04-24T09:25:05-0700',
+    end_time: '2023-05-01T09:25:05-0700',
     billing_event: 'IMPRESSIONS',
     optimization_goal: 'REACH',
     bid_amount: '1000',

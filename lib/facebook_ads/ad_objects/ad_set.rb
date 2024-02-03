@@ -1,20 +1,8 @@
-# Copyright (c) 2017-present, Facebook, Inc. All rights reserved.
-#
-# You are hereby granted a non-exclusive, worldwide, royalty-free license to use,
-# copy, modify, and distribute this software in source code or binary form for use
-# in connection with the web services and APIs provided by Facebook.
-#
-# As with any software that integrates with the Facebook platform, your use of
-# this software is subject to the Facebook Platform Policy
-# [http://developers.facebook.com/policy/]. This copyright notice shall be
-# included in all copies or substantial portions of the software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+# All rights reserved.
+
+# This source code is licensed under the license found in the
+# LICENSE file in the root directory of this source tree.
 
 # FB:AUTOGEN
 
@@ -76,6 +64,7 @@ module FacebookAds
       "LANDING_PAGE_VIEWS",
       "LEAD_GENERATION",
       "LINK_CLICKS",
+      "MESSAGING_APPOINTMENT_CONVERSION",
       "MESSAGING_PURCHASE_CONVERSION",
       "NONE",
       "OFFSITE_CONVERSIONS",
@@ -84,6 +73,8 @@ module FacebookAds
       "QUALITY_CALL",
       "QUALITY_LEAD",
       "REACH",
+      "REMINDERS_SET",
+      "SUBSCRIBERS",
       "THRUPLAY",
       "VALUE",
       "VISIT_INSTAGRAM_PROFILE",
@@ -193,6 +184,8 @@ module FacebookAds
     field :billing_event, { enum: -> { BILLING_EVENT }}
     field :budget_remaining, 'string'
     field :campaign, 'Campaign'
+    field :campaign_active_time, 'string'
+    field :campaign_attribution, 'string'
     field :campaign_id, 'string'
     field :configured_status, { enum: -> { CONFIGURED_STATUS }}
     field :created_time, 'datetime'
@@ -201,6 +194,8 @@ module FacebookAds
     field :daily_min_spend_target, 'string'
     field :daily_spend_cap, 'string'
     field :destination_type, 'string'
+    field :dsa_beneficiary, 'string'
+    field :dsa_payor, 'string'
     field :effective_status, { enum: -> { EFFECTIVE_STATUS }}
     field :end_time, 'datetime'
     field :existing_customer_budget_percentage, 'int'
@@ -208,6 +203,7 @@ module FacebookAds
     field :full_funnel_exploration_mode, 'string'
     field :id, 'string'
     field :instagram_actor_id, 'string'
+    field :is_budget_schedule_enabled, 'bool'
     field :is_dynamic_creative, 'bool'
     field :issues_info, { list: 'AdCampaignIssuesInfo' }
     field :learning_stage_info, 'AdCampaignLearningStageInfo'
@@ -230,7 +226,7 @@ module FacebookAds
     field :start_time, 'datetime'
     field :status, { enum: -> { STATUS }}
     field :targeting, 'Targeting'
-    field :targeting_optimization_types, 'hash'
+    field :targeting_optimization_types, { list: 'hash' }
     field :time_based_ad_rotation_id_blocks, { list: { list: 'int' } }
     field :time_based_ad_rotation_intervals, { list: 'int' }
     field :updated_time, 'datetime'
@@ -245,7 +241,6 @@ module FacebookAds
     field :time_stop, 'datetime'
     field :topline_id, 'string'
     field :tune_for_category, { enum: -> { TUNE_FOR_CATEGORY }}
-    field :upstream_events, 'hash'
 
     has_edge :activities do |edge|
       edge.get 'AdActivity' do |api|
@@ -288,7 +283,7 @@ module FacebookAds
       edge.get 'Ad' do |api|
         api.has_param :date_preset, { enum: -> { Ad::DATE_PRESET }}
         api.has_param :effective_status, { list: 'string' }
-        api.has_param :time_range, 'object'
+        api.has_param :time_range, 'hash'
         api.has_param :updated_since, 'int'
       end
     end
@@ -299,12 +294,21 @@ module FacebookAds
       end
     end
 
+    has_edge :budget_schedules do |edge|
+      edge.post 'HighDemandPeriod' do |api|
+        api.has_param :budget_value, 'int'
+        api.has_param :budget_value_type, { enum: -> { HighDemandPeriod::BUDGET_VALUE_TYPE }}
+        api.has_param :time_end, 'int'
+        api.has_param :time_start, 'int'
+      end
+    end
+
     has_edge :copies do |edge|
       edge.get 'AdSet' do |api|
         api.has_param :date_preset, { enum: -> { AdSet::DATE_PRESET }}
         api.has_param :effective_status, { list: { enum: -> { AdSet::EFFECTIVE_STATUS }} }
         api.has_param :is_completed, 'bool'
-        api.has_param :time_range, 'object'
+        api.has_param :time_range, 'hash'
       end
       edge.post 'AdSet' do |api|
         api.has_param :campaign_id, 'string'
@@ -344,8 +348,8 @@ module FacebookAds
         api.has_param :summary, { list: 'string' }
         api.has_param :summary_action_breakdowns, { list: { enum: -> { AdsInsights::SUMMARY_ACTION_BREAKDOWNS }} }
         api.has_param :time_increment, 'string'
-        api.has_param :time_range, 'object'
-        api.has_param :time_ranges, { list: 'object' }
+        api.has_param :time_range, 'hash'
+        api.has_param :time_ranges, { list: 'hash' }
         api.has_param :use_account_attribution_setting, 'bool'
         api.has_param :use_unified_attribution_setting, 'bool'
       end
@@ -367,8 +371,8 @@ module FacebookAds
         api.has_param :summary, { list: 'string' }
         api.has_param :summary_action_breakdowns, { list: { enum: -> { AdsInsights::SUMMARY_ACTION_BREAKDOWNS }} }
         api.has_param :time_increment, 'string'
-        api.has_param :time_range, 'object'
-        api.has_param :time_ranges, { list: 'object' }
+        api.has_param :time_range, 'hash'
+        api.has_param :time_ranges, { list: 'hash' }
         api.has_param :use_account_attribution_setting, 'bool'
         api.has_param :use_unified_attribution_setting, 'bool'
       end

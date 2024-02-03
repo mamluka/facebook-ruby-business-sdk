@@ -1,20 +1,8 @@
-# Copyright (c) 2017-present, Facebook, Inc. All rights reserved.
-#
-# You are hereby granted a non-exclusive, worldwide, royalty-free license to use,
-# copy, modify, and distribute this software in source code or binary form for use
-# in connection with the web services and APIs provided by Facebook.
-#
-# As with any software that integrates with the Facebook platform, your use of
-# this software is subject to the Facebook Platform Policy
-# [http://developers.facebook.com/policy/]. This copyright notice shall be
-# included in all copies or substantial portions of the software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+# All rights reserved.
+
+# This source code is licensed under the license found in the
+# LICENSE file in the root directory of this source tree.
 
 # FB:AUTOGEN
 
@@ -50,12 +38,14 @@ module FacebookAds
     ]
 
     PERMITTED_TASKS = [
+      "AA_ANALYZE",
       "ADVERTISE",
       "MANAGE",
       "MANAGE_AR",
     ]
 
     TASKS = [
+      "AA_ANALYZE",
       "ADVERTISE",
       "MANAGE",
       "MANAGE_AR",
@@ -95,6 +85,8 @@ module FacebookAds
     ]
 
 
+    field :ad_account_to_collaborative_ads_share_settings, 'CollaborativeAdsShareSettings'
+    field :agency_collaborative_ads_share_settings, 'CollaborativeAdsShareSettings'
     field :business, 'Business'
     field :catalog_store, 'StoreCatalogSettings'
     field :commerce_merchant_settings, 'CommerceMerchantSettings'
@@ -109,6 +101,7 @@ module FacebookAds
     field :owner_business, 'Business'
     field :product_count, 'int'
     field :store_catalog_settings, 'StoreCatalogSettings'
+    field :user_access_expire_time, 'datetime'
     field :vertical, 'string'
     field :catalog_segment_filter, 'object'
     field :catalog_segment_product_set_id, 'string'
@@ -127,12 +120,6 @@ module FacebookAds
         api.has_param :permitted_roles, { list: { enum: -> { ProductCatalog::PERMITTED_ROLES }} }
         api.has_param :permitted_tasks, { list: { enum: -> { ProductCatalog::PERMITTED_TASKS }} }
         api.has_param :utm_settings, 'hash'
-      end
-    end
-
-    has_edge :ar_effects_batch_status do |edge|
-      edge.get 'ArEffectsBatchStatus' do |api|
-        api.has_param :handle, 'string'
       end
     end
 
@@ -161,12 +148,13 @@ module FacebookAds
         api.has_param :allow_upsert, 'bool'
         api.has_param :fbe_external_business_id, 'string'
         api.has_param :requests, { list: 'hash' }
+        api.has_param :version, 'int'
       end
     end
 
-    has_edge :catalog_website_settings do |edge|
-      edge.post do |api|
-        api.has_param :is_allowed_to_crawl, 'bool'
+    has_edge :catalog_store do |edge|
+      edge.post 'StoreCatalogSettings' do |api|
+        api.has_param :page, 'int'
       end
     end
 
@@ -186,6 +174,10 @@ module FacebookAds
         api.has_param :handle, 'string'
         api.has_param :load_ids_of_invalid_requests, 'bool'
       end
+    end
+
+    has_edge :collaborative_ads_event_stats do |edge|
+      edge.get 'CatalogSegmentAllMatchCountLaser'
     end
 
     has_edge :collaborative_ads_lsb_image_bank do |edge|
@@ -316,6 +308,7 @@ module FacebookAds
         api.has_param :item_sub_type, { enum: -> { ProductCatalog::ITEM_SUB_TYPE }}
         api.has_param :item_type, 'string'
         api.has_param :requests, 'hash'
+        api.has_param :version, 'int'
       end
     end
 
@@ -324,28 +317,7 @@ module FacebookAds
         api.has_param :allow_upsert, 'bool'
         api.has_param :item_type, 'string'
         api.has_param :requests, 'hash'
-      end
-    end
-
-    has_edge :media_titles do |edge|
-      edge.get 'MediaTitle' do |api|
-        api.has_param :bulk_pagination, 'bool'
-        api.has_param :filter, 'object'
-      end
-      edge.post 'MediaTitle' do |api|
-        api.has_param :applinks, 'object'
-        api.has_param :content_category, { enum: -> { MediaTitle::CONTENT_CATEGORY }}
-        api.has_param :currency, 'string'
-        api.has_param :description, 'string'
-        api.has_param :fb_page_id, 'string'
-        api.has_param :genres, { list: 'string' }
-        api.has_param :images, { list: 'object' }
-        api.has_param :kg_fb_id, 'string'
-        api.has_param :media_title_id, 'string'
-        api.has_param :price, 'int'
-        api.has_param :title, 'string'
-        api.has_param :title_display_name, 'string'
-        api.has_param :url, 'string'
+        api.has_param :version, 'int'
       end
     end
 

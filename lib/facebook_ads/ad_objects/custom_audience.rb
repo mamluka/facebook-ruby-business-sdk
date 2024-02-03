@@ -1,20 +1,8 @@
-# Copyright (c) 2017-present, Facebook, Inc. All rights reserved.
-#
-# You are hereby granted a non-exclusive, worldwide, royalty-free license to use,
-# copy, modify, and distribute this software in source code or binary form for use
-# in connection with the web services and APIs provided by Facebook.
-#
-# As with any software that integrates with the Facebook platform, your use of
-# this software is subject to the Facebook Platform Policy
-# [http://developers.facebook.com/policy/]. This copyright notice shall be
-# included in all copies or substantial portions of the software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+# All rights reserved.
+
+# This source code is licensed under the license found in the
+# LICENSE file in the root directory of this source tree.
 
 # FB:AUTOGEN
 
@@ -63,6 +51,7 @@ module FacebookAds
     SUBTYPE = [
       "APP",
       "BAG_OF_ACCOUNTS",
+      "BIDDING",
       "CLAIM",
       "CUSTOM",
       "ENGAGEMENT",
@@ -72,8 +61,10 @@ module FacebookAds
       "MEASUREMENT",
       "OFFLINE_CONVERSION",
       "PARTNER",
+      "PRIMARY",
       "REGULATED_CATEGORIES_AUDIENCE",
       "STUDY_RULE_AUDIENCE",
+      "SUBSCRIBER_SEGMENT",
       "VIDEO",
       "WEBSITE",
     ]
@@ -141,7 +132,9 @@ module FacebookAds
     field :partner_reference_key, 'string'
     field :prefill, 'bool'
     field :product_set_id, 'string'
+    field :use_in_campaigns, 'bool'
     field :video_group_ids, { list: 'string' }
+    field :whats_app_business_phone_number_id, 'string'
 
     has_edge :adaccounts do |edge|
       edge.delete do |api|
@@ -162,6 +155,17 @@ module FacebookAds
       edge.get 'Ad' do |api|
         api.has_param :effective_status, { list: 'string' }
         api.has_param :status, { list: 'string' }
+      end
+    end
+
+    has_edge :salts do |edge|
+      edge.get 'CustomAudienceSalts' do |api|
+        api.has_param :params, { list: 'string' }
+      end
+      edge.post 'CustomAudience' do |api|
+        api.has_param :salt, 'string'
+        api.has_param :valid_from, 'datetime'
+        api.has_param :valid_to, 'datetime'
       end
     end
 

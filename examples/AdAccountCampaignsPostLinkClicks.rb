@@ -1,4 +1,5 @@
-# Copyright (c) 2017-present, Facebook, Inc. All rights reserved.
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+# All rights reserved.
 #
 # You are hereby granted a non-exclusive, worldwide, royalty-free license to use,
 # copy, modify, and distribute this software in source code or binary form for use
@@ -31,7 +32,7 @@ end
 ad_account = FacebookAds::AdAccount.get(id)
 campaigns = ad_account.campaigns.create({
     name: 'My campaign',
-    objective: 'LINK_CLICKS',
+    objective: 'OUTCOME_TRAFFIC',
     status: 'PAUSED',
     special_ad_categories: [],
 })

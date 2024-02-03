@@ -1,20 +1,8 @@
-# Copyright (c) 2017-present, Facebook, Inc. All rights reserved.
-#
-# You are hereby granted a non-exclusive, worldwide, royalty-free license to use,
-# copy, modify, and distribute this software in source code or binary form for use
-# in connection with the web services and APIs provided by Facebook.
-#
-# As with any software that integrates with the Facebook platform, your use of
-# this software is subject to the Facebook Platform Policy
-# [http://developers.facebook.com/policy/]. This copyright notice shall be
-# included in all copies or substantial portions of the software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+# All rights reserved.
+
+# This source code is licensed under the license found in the
+# LICENSE file in the root directory of this source tree.
 
 # FB:AUTOGEN
 
@@ -40,6 +28,7 @@ module FacebookAds
       "available for order",
       "discontinued",
       "in stock",
+      "mark_as_sold",
       "out of stock",
       "pending",
       "preorder",
@@ -84,6 +73,15 @@ module FacebookAds
       "kg",
       "lb",
       "oz",
+    ]
+
+    VIDEO_FETCH_STATUS = [
+      "DIRECT_UPLOAD",
+      "FETCHED",
+      "FETCH_FAILED",
+      "NO_STATUS",
+      "OUTDATED",
+      "PARTIAL_FETCH",
     ]
 
     VISIBILITY = [
@@ -311,10 +309,20 @@ module FacebookAds
       "AVAILABLE",
       "BAD_QUALITY_IMAGE",
       "CANNOT_EDIT_SUBSCRIPTION_PRODUCTS",
+      "CHECKOUT_DISABLED_BY_USER",
+      "COMMERCE_ACCOUNT_NOT_LEGALLY_COMPLIANT",
       "CRAWLED_AVAILABILITY_MISMATCH",
+      "DA_DISABLED_BY_USER",
+      "DA_POLICY_VIOLATION",
       "DIGITAL_GOODS_NOT_AVAILABLE_FOR_CHECKOUT",
       "DUPLICATE_IMAGES",
       "DUPLICATE_TITLE_AND_DESCRIPTION",
+      "EMPTY_AVAILABILITY",
+      "EMPTY_CONDITION",
+      "EMPTY_DESCRIPTION",
+      "EMPTY_PRODUCT_URL",
+      "EMPTY_SELLER_DESCRIPTION",
+      "EXTERNAL_MERCHANT_ID_MISMATCH",
       "GENERIC_INVALID_FIELD",
       "HIDDEN_UNTIL_PRODUCT_LAUNCH",
       "IMAGE_FETCH_FAILED",
@@ -329,6 +337,7 @@ module FacebookAds
       "INVALID_IMAGES",
       "INVALID_MONETIZER_RETURN_POLICY",
       "INVALID_PRE_ORDER_PARAMS",
+      "INVALID_SHELTER_PAGE_ID",
       "INVALID_SHIPPING_PROFILE_PARAMS",
       "INVALID_SUBSCRIPTION_DISABLE_PARAMS",
       "INVALID_SUBSCRIPTION_ENABLE_PARAMS",
@@ -337,8 +346,11 @@ module FacebookAds
       "IN_ANOTHER_PRODUCT_LAUNCH",
       "ITEM_GROUP_NOT_SPECIFIED",
       "ITEM_NOT_SHIPPABLE_FOR_SCA_SHOP",
+      "ITEM_OVERRIDE_EMPTY_AVAILABILITY",
+      "ITEM_OVERRIDE_EMPTY_PRICE",
       "ITEM_OVERRIDE_NOT_VISIBLE",
       "ITEM_STALE_OUT_OF_STOCK",
+      "MARKETPLACE_DISABLED_BY_USER",
       "MINI_SHOPS_DISABLED_BY_USER",
       "MISSING_CHECKOUT",
       "MISSING_CHECKOUT_CURRENCY",
@@ -350,9 +362,11 @@ module FacebookAds
       "MISSING_TAX_CATEGORY",
       "NEGATIVE_COMMUNITY_FEEDBACK",
       "NOT_ENOUGH_IMAGES",
+      "NOT_ENOUGH_UNIQUE_PRODUCTS",
       "PART_OF_PRODUCT_LAUNCH",
       "PRODUCT_EXPIRED",
       "PRODUCT_ITEM_HIDDEN_FROM_ALL_SHOPS",
+      "PRODUCT_ITEM_INVALID_PARTNER_TOKENS",
       "PRODUCT_ITEM_NOT_INCLUDED_IN_ANY_SHOP",
       "PRODUCT_ITEM_NOT_VISIBLE",
       "PRODUCT_NOT_APPROVED",
@@ -362,6 +376,7 @@ module FacebookAds
       "PROPERTY_PRICE_CURRENCY_NOT_SUPPORTED",
       "PROPERTY_PRICE_TOO_HIGH",
       "PROPERTY_PRICE_TOO_LOW",
+      "PROPERTY_UNIT_PRICE_CURRENCY_MISMATCH_ITEM_PRICE_CURRENCY",
       "PROPERTY_VALUE_CONTAINS_HTML_TAGS",
       "PROPERTY_VALUE_DESCRIPTION_CONTAINS_OFF_PLATFORM_LINK",
       "PROPERTY_VALUE_FORMAT",
@@ -370,16 +385,28 @@ module FacebookAds
       "PROPERTY_VALUE_NON_POSITIVE",
       "PROPERTY_VALUE_STRING_EXCEEDS_LENGTH",
       "PROPERTY_VALUE_STRING_TOO_SHORT",
+      "PROPERTY_VALUE_UPPERCASE",
       "PROPERTY_VALUE_UPPERCASE_WARNING",
       "QUALITY_DUPLICATED_DESCRIPTION",
       "QUALITY_ITEM_LINK_BROKEN",
       "QUALITY_ITEM_LINK_REDIRECTING",
       "RETAILER_ID_NOT_PROVIDED",
+      "SHOPIFY_INVALID_RETAILER_ID",
       "SHOPIFY_ITEM_MISSING_SHIPPING_PROFILE",
+      "SHOPS_POLICY_VIOLATION",
       "SUBSCRIPTION_INFO_NOT_ENABLED_FOR_FEED",
       "TAX_CATEGORY_NOT_SUPPORTED_IN_UK",
       "UNSUPPORTED_PRODUCT_CATEGORY",
       "VARIANT_ATTRIBUTE_ISSUE",
+      "VIDEO_FETCH_FAILED",
+      "VIDEO_FETCH_FAILED_BAD_GATEWAY",
+      "VIDEO_FETCH_FAILED_FILE_SIZE_EXCEEDED",
+      "VIDEO_FETCH_FAILED_FORBIDDEN",
+      "VIDEO_FETCH_FAILED_LINK_BROKEN",
+      "VIDEO_FETCH_FAILED_TIMED_OUT",
+      "VIDEO_NOT_DOWNLOADABLE",
+      "WHATSAPP_DISABLED_BY_USER",
+      "WHATSAPP_POLICY_VIOLATION",
     ]
 
     MARKED_FOR_PRODUCT_LAUNCH = [
@@ -648,22 +675,21 @@ module FacebookAds
     ]
 
 
-    field :additional_image_cdn_urls, { list: 'hash' }
+    field :additional_image_cdn_urls, { list: { list: 'hash' } }
     field :additional_image_urls, { list: 'string' }
-    field :additional_variant_attributes, 'hash'
+    field :additional_variant_attributes, { list: 'hash' }
     field :age_group, { enum: -> { AGE_GROUP }}
     field :applinks, 'CatalogItemAppLinks'
-    field :ar_data, 'ProductItemArData'
     field :availability, { enum: -> { AVAILABILITY }}
     field :brand, 'string'
-    field :capability_to_review_status, 'hash'
+    field :capability_to_review_status, { list: 'hash' }
     field :category, 'string'
     field :category_specific_fields, 'CatalogSubVerticalList'
     field :color, 'string'
     field :commerce_insights, 'ProductItemCommerceInsights'
     field :condition, { enum: -> { CONDITION }}
     field :currency, 'string'
-    field :custom_data, 'hash'
+    field :custom_data, { list: 'hash' }
     field :custom_label_0, 'string'
     field :custom_label_1, 'string'
     field :custom_label_2, 'string'
@@ -681,7 +707,7 @@ module FacebookAds
     field :gender, { enum: -> { GENDER }}
     field :gtin, 'string'
     field :id, 'string'
-    field :image_cdn_urls, 'hash'
+    field :image_cdn_urls, { list: 'hash' }
     field :image_fetch_status, { enum: -> { IMAGE_FETCH_STATUS }}
     field :image_url, 'string'
     field :images, { list: 'string' }
@@ -704,6 +730,7 @@ module FacebookAds
     field :product_catalog, 'ProductCatalog'
     field :product_feed, 'ProductFeed'
     field :product_group, 'ProductGroup'
+    field :product_local_info, 'ProductItemLocalInfo'
     field :product_type, 'string'
     field :quantity_to_sell_on_facebook, 'int'
     field :retailer_id, 'string'
@@ -718,7 +745,9 @@ module FacebookAds
     field :short_description, 'string'
     field :size, 'string'
     field :start_date, 'string'
+    field :tags, { list: 'string' }
     field :url, 'string'
+    field :video_fetch_status, { enum: -> { VIDEO_FETCH_STATUS }}
     field :visibility, { enum: -> { VISIBILITY }}
     field :wa_compliance_category, 'string'
     field :additional_uploaded_image_ids, { list: 'string' }
@@ -752,6 +781,10 @@ module FacebookAds
 
     has_edge :product_sets do |edge|
       edge.get 'ProductSet'
+    end
+
+    has_edge :videos_metadata do |edge|
+      edge.get 'DynamicVideoMetadata'
     end
 
   end
