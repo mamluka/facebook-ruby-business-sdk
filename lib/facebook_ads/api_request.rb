@@ -37,6 +37,7 @@ module FacebookAds
     end
 
     def execute_now
+      binding.pry
       faraday_response = session.request(method, path, params)
       create_response(faraday_response.status, faraday_response.headers, faraday_response.body)
     end
@@ -77,11 +78,21 @@ module FacebookAds
     end
 
     def to_batch_params
+      body = batch_body
+      relative_url = path
+
+      # For GET requests, append batch_body as query strings to relative_url
+      if method.to_s.upcase == 'GET' && !body.empty?
+        separator = relative_url.include?('?') ? '&' : '?'
+        relative_url = "#{relative_url}#{separator}#{body}"
+        body = nil
+      end
+
       {
         name: batch_name,
         method: method.to_s.upcase,
-        relative_url: path,
-        body: batch_body,
+        relative_url: relative_url,
+        body: body,
         omit_response_on_success: false,
         attached_files: files.empty? ? nil : files.keys.join(','),
       }.compact
