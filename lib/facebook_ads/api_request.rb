@@ -37,7 +37,6 @@ module FacebookAds
     end
 
     def execute_now
-      binding.pry
       faraday_response = session.request(method, path, params)
       create_response(faraday_response.status, faraday_response.headers, faraday_response.body)
     end
