@@ -11,7 +11,7 @@ module FacebookAds
     extend Forwardable
     def_delegators :@collection, :length, :count
 
-    DEFAULT_PAGE_SIZE = 10
+    DEFAULT_PAGE_SIZE = 1000
     attr_accessor :has_next_page, :next_page_cursor
 
     def [](idx)
